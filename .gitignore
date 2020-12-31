@@ -1,0 +1,5 @@
+# has OAuth token
+.config/gh/hosts.yml
+
+# Cache directories
+**/*[cC]ache*
