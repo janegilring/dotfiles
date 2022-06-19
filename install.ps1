@@ -19,7 +19,6 @@ Get-ChildItem -Path $customConfigPath | ForEach-Object {
 
 Install-Module PSDepend -Force
 
-#Disabled for testing
-#Invoke-PSDepend -Force (Join-Path $PSScriptRoot 'requirements.psd1')
+Invoke-PSDepend -Force (Join-Path $PSScriptRoot 'requirements.psd1')
 
 "install.ps1 completed $(Get-Date)" >> ~\dotfiles.log
