@@ -5,8 +5,8 @@ Import-Module -Name Terminal-Icons
 Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
 
 if ($IsLinux) {
-Import-Module Microsoft.PowerShell.UnixCompleters
-Import-UnixCompleters
+Import-Module Microsoft.PowerShell.UnixCompleters -ErrorAction Ignore
+Import-UnixCompleters -ErrorAction Ignore
 Set-PSReadLineOption -HistorySavePath '/workspaces/PSDemo/.devcontainer/powershell/PSReadLine/Visual Studio Code Host_history.txt'
 }
 
