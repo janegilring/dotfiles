@@ -1,40 +1,49 @@
-#region UX config
+Import-Module -Name Terminal-Icons
 
-$hasOhMyPosh = Import-Module oh-my-posh -MinimumVersion 3.0 -PassThru -ErrorAction SilentlyContinue
-if ($hasOhMyPosh) {
-    $themePath = '~/.config/powershell/PoshThemes/jan.json'
-    if (Test-Path $themePath) {
-        Set-PoshPrompt -Theme $themePath
+# PSReadLine
+
+Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
+
+if ($IsLinux) {
+Import-Module Microsoft.PowerShell.UnixCompleters
+Import-UnixCompleters
+Set-PSReadLineOption -HistorySavePath '/workspaces/PSDemo/.devcontainer/powershell/PSReadLine/Visual Studio Code Host_history.txt'
+}
+
+Set-PSReadLineOption -MaximumHistoryCount 32767 #-HistorySavePath "$([environment]::GetFolderPath('ApplicationData'))\Microsoft\Windows\PowerShell\PSReadLine\history.txt"
+
+switch ($PSVersionTable.PSVersion.Major) {
+    7 {
+        #Set-PSReadLineOption -PredictionSource HistoryAndPlugin #7.2 or a higher version of PowerShell is required
+        Set-PSReadLineOption -PredictionSource History
+        Set-PSReadLineOption -PredictionViewStyle ListView
+    }
+    default {
+        Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward # Must be disabled for Az.Tools.Predictor/ListView to work
+        Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
+        Set-PSReadLineOption -PredictionViewStyle InlineView
+        Set-PSReadLineOption -PredictionSource History
+    }
+}
+
+function Set-EnvVar {
+    if (Test-Path -Path ~/.Azure/AzureRmContext.json) {
+        $azureContext = Get-Content ~/.Azure/AzureRmContext.json | ConvertFrom-Json
+        $subscriptionName = $azureContext.Contexts.($azureContext.DefaultContextKey).Subscription.Name
+        $env:oh_my_azure_context = $subscriptionName
     } else {
-        Set-PoshPrompt -Theme material
-    }
-}
-
-if (Get-Module PSReadLine) {
-    Set-PSReadLineKeyHandler -Chord Alt+Enter -Function AddLine
-    Set-PSReadLineOption -ContinuationPrompt "  " -PredictionSource History -Colors @{
-        Operator = "`e[95m"
-        Parameter = "`e[95m"
-        InlinePrediction = "`e[36;7;238m"
+        $env:oh_my_azure_context = $null
     }
 
-    # Searching for commands with up/down arrow is really handy.  The
-    # option "moves to end" is useful if you want the cursor at the end
-    # of the line while cycling through history like it does w/o searching,
-    # without that option, the cursor will remain at the position it was
-    # when you used up arrow, which can be useful if you forget the exact
-    # string you started the search on.
-    Set-PSReadLineOption -HistorySearchCursorMovesToEnd
-    Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
-    Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
+    $env:oh_my_psversion = ($PSVersionTable.PSVersion.ToString() -split '-')[0]
 }
+New-Alias -Name 'Set-PoshContext' -Value 'Set-EnvVar' -Scope Global
 
-#endregion
+oh-my-posh init pwsh --config /workspaces/PSDemo/.devcontainer/powershell/themes/jan.json | Invoke-Expression
 
+New-Alias -Name k -Value kubectl -Scope Global
 
-#region Argument completers
-
-# UnixCompleters
-Import-Module Microsoft.PowerShell.UnixCompleters -ErrorAction SilentlyContinue
-
-#endregion
+#Enable concise errorview for PS7 and up
+if ($psversiontable.psversion.major -ge 7) {
+    $ErrorView = 'ConciseView'
+}
