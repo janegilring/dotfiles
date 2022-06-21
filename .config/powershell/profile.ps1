@@ -1,22 +1,37 @@
-Import-Module -Name Terminal-Icons
+$AvailableModules = Get-Module -ListAvailable | Select-Object -ExpandProperty name
+$WorkspaceFolder = Join-Path -Path (Get-ChildItem /workspaces | Select-Object -First 1).FullName -ChildPath .devcontainer/
+$WorkspacePowerShellFolder = Join-Path -Path $WorkspaceFolder -ChildPath powershell
+
+if (-not (Test-Path -Path $WorkspacePowerShellFolder)) {
+    $null = New-Item -Path $WorkspacePowerShellFolder -ItemType Directory -Force
+}
+
+if ($AvailableModules -contains 'Terminal-Icons') {
+    Import-Module -Name Terminal-Icons
+}
 
 # PSReadLine
 
 Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
 
 if ($IsLinux) {
-Import-Module Microsoft.PowerShell.UnixCompleters -ErrorAction Ignore
-Import-UnixCompleters -ErrorAction Ignore
-Set-PSReadLineOption -HistorySavePath '/workspaces/PSDemo/.devcontainer/powershell/PSReadLine/Visual Studio Code Host_history.txt'
+
+    if ($AvailableModules -contains 'Microsoft.PowerShell.UnixCompleters') {
+        Import-Module Microsoft.PowerShell.UnixCompleters
+        Import-UnixCompleters -ErrorAction Ignore
+    }
+
+    Set-PSReadLineOption -HistorySavePath "$WorkspacePowerShellFolder/PSReadLine_history.txt"
+
 }
 
-Set-PSReadLineOption -MaximumHistoryCount 32767 #-HistorySavePath "$([environment]::GetFolderPath('ApplicationData'))\Microsoft\Windows\PowerShell\PSReadLine\history.txt"
+Set-PSReadLineOption -MaximumHistoryCount 32767
 
 switch ($PSVersionTable.PSVersion.Major) {
     7 {
         #Set-PSReadLineOption -PredictionSource HistoryAndPlugin #7.2 or a higher version of PowerShell is required
         Set-PSReadLineOption -PredictionSource History
-        Set-PSReadLineOption -PredictionViewStyle ListView
+        Set-PSReadLineOption -PredictionViewStyle ListView -WarningAction SilentlyContinue
     }
     default {
         Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward # Must be disabled for Az.Tools.Predictor/ListView to work
@@ -39,7 +54,18 @@ function Set-EnvVar {
 }
 New-Alias -Name 'Set-PoshContext' -Value 'Set-EnvVar' -Scope Global
 
-oh-my-posh init pwsh --config /workspaces/PSDemo/.devcontainer/powershell/themes/jan.json | Invoke-Expression
+if (Get-Command -Name 'oh-my-posh' -ErrorAction SilentlyContinue) {
+
+    if (Test-Path -Path "$WorkspacePowerShellFolder/themes/jan.json") {
+
+        oh-my-posh init pwsh --config "$WorkspacePowerShellFolder/themes/jan.json" | Invoke-Expression
+
+    } else {
+
+        oh-my-posh init pwsh --config 'https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/jandedobbeleer.omp.json'
+
+    }
+}
 
 New-Alias -Name k -Value kubectl -Scope Global
 
