@@ -33,4 +33,5 @@
     'Terminal-Icons'                             = 'latest'
     'tftools'                                    = 'latest'
     'ImportExcel'                                = 'latest'
+    'PSReadLine'                                 = 'latest'
 }
