@@ -56,15 +56,17 @@ New-Alias -Name 'Set-PoshContext' -Value 'Set-EnvVar' -Scope Global
 
 if (Get-Command -Name 'oh-my-posh' -ErrorAction SilentlyContinue) {
 
-    if (Test-Path -Path "$WorkspacePowerShellFolder/themes/jan.json") {
+   oh-my-posh init pwsh --config 'https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/night-owl.omp.json' | Invoke-Expression
 
-        oh-my-posh init pwsh --config "$WorkspacePowerShellFolder/themes/jan.json" | Invoke-Expression
+   # if (Test-Path -Path "$WorkspacePowerShellFolder/themes/jan.json") {
 
-    } else {
+   #     oh-my-posh init pwsh --config "$WorkspacePowerShellFolder/themes/jan.json" | Invoke-Expression
 
-        oh-my-posh init pwsh --config 'https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/jandedobbeleer.omp.json'
+   # } else {
 
-    }
+   #     oh-my-posh init pwsh --config 'https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/jandedobbeleer.omp.json'
+
+   # }
 }
 
 New-Alias -Name k -Value kubectl -Scope Global
