@@ -1,6 +1,6 @@
 #Requires -Version 7
 
-# Version 1.3.6
+# Version 1.3.8
 
 # Cross-platform PowerShell profile based on https://devblogs.microsoft.com/powershell/optimizing-your-profile/
 
@@ -94,7 +94,13 @@ function prompt {
         Set-PSReadLineKeyHandler -Chord Ctrl+b -Function BackwardWord
         Set-PSReadLineKeyHandler -Chord Ctrl+f -Function ForwardWord
         Set-PSReadLineOption -MaximumHistoryCount 32767
-        Set-PSReadLineOption -PredictionViewStyle ListView
+
+        if ($env:TERM_PROGRAM -eq "vscode") {
+            # Use inline prediction view in VSCode to avoid: WARNING: The prediction 'ListView' is temporarily disabled because the current window size of the console is too small. To use the 'ListView', please make sure the 'WindowWidth' is not less than '54' and the 'WindowHeight' is not less than '15'.
+            Set-PSReadLineOption -PredictionViewStyle InlineView
+        } else {
+            Set-PSReadLineOption -PredictionViewStyle ListView
+        }
 
         if ($IsWindows) {
             Set-PSReadLineOption -EditMode Emacs -ShowToolTips
@@ -151,3 +157,4 @@ function prompt {
 
     $global:LASTEXITCODE = $currentLastExitCode
 }
+
