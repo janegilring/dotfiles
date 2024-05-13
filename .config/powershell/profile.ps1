@@ -114,7 +114,7 @@ function prompt {
             if ($IsMacOS) {
                 oh-my-posh init pwsh --config "$(brew --prefix oh-my-posh)/themes/night-owl.omp.json" | Invoke-Expression
             } else {
-                oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH\night-owl.omp.json" | Invoke-Expression
+                oh-my-posh init pwsh --config "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/night-owl.omp.json" | Invoke-Expression
             }
 
         }
